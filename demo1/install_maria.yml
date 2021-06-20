@@ -1,0 +1,39 @@
+---
+- name: Install MariaDB
+  hosts: database
+  become: yes
+  tasks:
+  - name: Install MariaDB and python3-PyMySQL
+    package:
+     name: "{{ item }}"
+     state: latest
+    loop:
+    - mariadb-server
+    - python3-PyMySQL
+    when: 
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "8"
+  - name: Start MariaDB Service
+    service:
+      name: mariadb
+      state: started
+
+- name: Set the root user pass for mariaDB
+  hosts: database
+  become: yes
+  tasks:
+  - name: Check if the DB is started
+    shell: systemctl is-active mariadb
+    register: status_result
+  #- name: print the status result
+  #  debug:
+  #    var: status_result
+  - name: Set the root user for the db
+    no_log: true
+    mysql_user:
+      login_user: root
+      login_password: "{{ db_root_pass }}"
+      name: root
+      password: "{{ db_root_pass }}"
+    when: status_result.stdout == "active"
+...

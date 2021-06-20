@@ -1,0 +1,1 @@
+ansible ansible2.hl.local -a cat /etc/ansible/facts.d/file_server.facts

@@ -1,0 +1,5 @@
+[localfacts]
+service = smb
+package = samba
+enabled = true
+

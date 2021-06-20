@@ -1,0 +1,11 @@
+#!/bin/bash
+
+ansible -i inventory all -m user -a name=automation -u ansible -k -b
+
+ansible -i inventory all -m file -a 'state=directory path=/home/automation/.ssh owner=automation group=automation' -u ansible -k -b
+
+#ansible -i inventory all -m copy -a 'src=/home/automation/.ssh/id_rsa.pub dest=/tmp/id_rsa.pub' -u ansible -k
+ansible -i inventory all -m copy -a 'src=/home/automation/.ssh/id_rsa.pub dest=/home/automation/.ssh/authorized_keys' -u ansible -k -b
+ansible -i inventory all -m file -a 'state=file path=/home/automation/.ssh/authorized_keys owner=automation group=automation mode=0644' -u ansible -k -b
+
+ansible -i inventory all -m copy -a 'content="automation	ALL=(ALL)	NOPASSWD: ALL" dest=/etc/sudoers.d/automation' -u ansible -k -b

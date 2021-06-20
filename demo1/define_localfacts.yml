@@ -1,0 +1,31 @@
+---
+- name: define local facts on file server
+  hosts: ansible2.hl.local
+  become: yes
+  vars:
+    facts_dir: "/etc/ansible/facts.d"
+  tasks:
+  - name: create the fact dir on the remote host
+    file:
+      path: "{{ facts_dir }}"
+      state: directory
+  - name: copy the facts file to the remote host
+    copy:
+      src: "./files/file_server_facts.facts"
+      dest: "{{ facts_dir }}/file_server.fact"
+
+- name: Install and enable smba service
+  hosts: ansible2.hl.local
+  become: true
+  tasks:
+  - name: Install smba
+    package:
+      name: "{{ ansible_facts.ansible_local.file_server.localfacts.package }}"
+      state: present
+  - name: start and enable samba
+    service:
+      name: "{{ ansible_facts.ansible_local.file_server.localfacts.service }}"
+      enabled: "{{ ansible_facts.ansible_local.file_server.localfacts.enabled }}"
+      state: started
+
+...
