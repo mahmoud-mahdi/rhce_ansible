@@ -17,23 +17,12 @@
     service:
       name: mariadb
       state: started
+      enabled: true
+    notify: set the db root password
 
-- name: Set the root user pass for mariaDB
-  hosts: database
-  become: yes
-  tasks:
-  - name: Check if the DB is started
-    shell: systemctl is-active mariadb
-    register: status_result
-  #- name: print the status result
-  #  debug:
-  #    var: status_result
-  - name: Set the root user for the db
-    no_log: true
-    mysql_user:
-      login_user: root
-      login_password: "{{ db_root_pass }}"
-      name: root
-      password: "{{ db_root_pass }}"
-    when: status_result.stdout == "active"
+  handlers:
+    - name: set the db root password
+      mysql_user:
+        name: root
+        password: "{{ db_root_pass }}"
 ...
