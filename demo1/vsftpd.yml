@@ -1,0 +1,60 @@
+---
+- name: Install and configure vsftpd
+  hosts: webservers
+  become: yes
+  tasks:
+  - name: install vsftpd
+    package:
+      name: vsftpd
+      state: present
+  - name: Upload the config file
+    template:
+      src: vsftpd.j2
+      dest: /etc/vsftpd/vsftpd.conf
+  - name: start and enable vsftpd
+    service:
+      name: vsftpd
+      state: started
+      enabled: yes
+  - name: start and enable firewalld
+    service:
+      name: firewalld
+      state: started
+      enabled: yes
+  - name: Open the firewall port
+    firewalld:
+      service: ftp
+      state: enabled
+      immediate: yes
+      permanent: yes
+
+- name: set selinux parameters
+  hosts: webservers
+  become: yes
+  tasks:
+  - name: Create pub directory
+    file:
+      path: /var/ftp/pub
+      state: directory
+      mode: 0777
+  - name: install selinux util
+    package:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - policycoreutils-python-utils
+  - name: set the sebool
+    seboolean:
+      name: ftpd_anon_write
+      state: yes
+      persistent: yes
+  - name: set selinux context
+    sefcontext:
+      target: /var/ftp/pub
+      setype: public_content_t
+      state: present
+    notify: Apply new SELinux file context to filesystem
+  handlers:
+  - name: Apply new SELinux file context to filesystem
+    command: restorecon -irv /var/ftp/pub
+...
