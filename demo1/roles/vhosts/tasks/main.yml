@@ -1,0 +1,12 @@
+---
+# tasks file for vhosts
+- name: install httpd
+  package:
+    name: httpd
+    state: latest
+- name: Start and enable httpd
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+...

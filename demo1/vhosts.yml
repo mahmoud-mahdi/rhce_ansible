@@ -1,0 +1,5 @@
+- name: install httpd and configure vhosts
+  hosts: webservers
+  become: yes
+  roles:
+    - vhosts
